@@ -1,0 +1,63 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<l:layout title="Test Result Graph">
+<st:include it="${it.project}" page="sidepanel.jelly" />
+<st:bind var="remoteAction" value="${it}"/> 
+<l:main-panel>
+<link href="${resURL}/plugin/TestResultDashboard/css/table-style.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/jquery/js/jquery-1.11.1.min.js"></script>
+
+<script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/js/handlebars-v2.0.0.js"></script>
+<script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/js/highcharts.js"></script>
+
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/js/testresult.js"></script>
+<script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/js/chart-generator.js"></script>
+<script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/js/test-result-analyzer-template.js"></script>
+<script>
+
+var $j = jQuery.noConflict();
+</script>
+
+<j:set var="temp" value="${it.jsonLoadData}"/>
+	<div>
+		Select build# 
+		<select id="noofbuilds">
+		<j:forEach var="buildNumber" items="${it.getBuilds()}">
+		  <option value="${buildNumber}">${buildNumber}</option>
+		  </j:forEach>
+		</select>
+       <button class = "charts" id="generatechart">Generate Build Report</button>
+	</div>
+	<br/>
+		
+   <div id="charts">
+   		<div id="linechart">
+
+   		</div>
+   		<br/>
+
+   		<div id="piechart">
+
+   		</div>
+		<br/>
+
+   		<div id="barchart">
+
+   		</div>
+
+   </div>
+	
+<script>
+	$j("#generatechart").click(function () {
+	        var buildNumber = $j('#noofbuilds').val();
+	   		generateChart(buildNumber);
+    }); 
+      
+
+    
+</script>
+
+	
+</l:main-panel>
+</l:layout>
+</j:jelly>

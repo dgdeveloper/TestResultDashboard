@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Group-Id: com.bclc.jenkins.plugins
+Short-Name: TestResultDashboard
+Long-Name: TestResultDashboard Plugin
+Url: https://wiki.jenkins-ci.org/display/JENKINS/TestResultDashboard+P
+ lugin
+Plugin-Version: 1.0
+Hudson-Version: 1.580.1
+Jenkins-Version: 1.580.1
+Plugin-Dependencies: junit:1.2-beta-4
+Plugin-Developers: 
+Libraries: C:\Workspace\BCLC QA project\TestResultDashboard\TestResult
+ Dashboard\target\classes
+Resource-Path: C:\Workspace\BCLC QA project\TestResultDashboard\TestRe
+ sultDashboard\src\main\webapp
+
