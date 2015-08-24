@@ -6,6 +6,111 @@
     "na" :""
 };
 
+function generateRawDataTable(buildNumber) {
+    generateRunRawDataTable(buildNumber);
+    generateRunDetailDataTable(buildNumber);
+    
+    
+}
+
+function generateRunRawDataTable(buildNumber) {
+    //add run raw data table   
+    $j('#runSummaryRawDataTable').append('<p id="runRawData"><a href="#">Raw Data</a></p><table id="runRawData-summary-table" width="400px" style="display: none" class="sortable bigtable"><tr><th>Area</th><th>Total</th><th>Passed</th><th>Failed</th></tr></table>')
+    
+		    remoteAction.getTestResultForAreaByBuildNumber(buildNumber,$j.proxy(
+             function(t){
+                chartData = t.responseObject();
+                $j.each(chartData, function(i, e) {
+                     var areaName = e.PackageName;
+                     var totalTests = e.TotalTests;
+                     var totalPassed = e.TotalPassed;
+                     var totalFailed = e.TotalFailed;
+                     
+                     var row= $j('<tr></tr>')
+                     
+                     var rowCell1 = $j('<td></td>').addClass('text-col').text(areaName);
+                     row.append(rowCell1);
+                     
+                     var rowCell2 = $j('<td></td>').addClass('num-col').text(totalTests);
+                     row.append(rowCell2);
+                     
+                     var rowCell3 = $j('<td></td>').addClass('num-col').text(totalPassed);
+                     row.append(rowCell3);
+                     
+                     var rowCell4 = $j('<td></td>').addClass('num-col').text(totalFailed);
+                     row.append(rowCell4);
+                                         
+	            	 $j('#runRawData-summary-table').append(row);
+                });
+             },this)
+            )	
+                        
+	//add event handler to rawdata link
+	$j("#runRawData").on("click",function(){
+	  	$j("#runRawData-summary-table").slideToggle("slow");
+	});
+	
+	//add run detail table
+}
+
+
+function generateRunDetailDataTable(buildNumber) {
+    //add run raw data table   
+    $j('#runDetailsRawDataTable').append('<p id="runDetailRawData"><a href="#">Run Details</a></p><table id="runDetailRawData-summary-table" width="400px" style="display: none" class="sortable pane bigtable"><tr><th>Area</th><th>Test Name</th><th>Runs</th><th>Passes</th><th>Failures</th><th>Consecutive Failures</th><th>Failed Step</th><th>Error Message</th></tr></table>')
+    
+		    remoteAction.getTestResultFailuresDetailByBuildNumber(buildNumber,$j.proxy(
+             function(t){
+                chartData = t.responseObject();
+                $j.each(chartData, function(i, e) {
+                     var areaName = e.PackageName;
+                     var testName = e.TestName;
+                     var runs = e.TotalCount;
+                     var passes = e.PassCount;
+                     var failures = e.FailCount;
+                     var consecutiveFailures = e.Age;
+                     var failedStep = e.ErrorStackTrace; 
+                     var errorMessage = e.ErrorDetails;
+                     
+                     var row= $j('<tr></tr>')
+                     
+                     var rowCell1 = $j('<td></td>').addClass('text-col').text(areaName);
+                     row.append(rowCell1);
+                     
+                     var rowCell2 = $j('<td></td>').addClass('text-col').text(testName);
+                     row.append(rowCell2);
+                     
+                     var rowCell3 = $j('<td></td>').addClass('num-col').text(runs);
+                     row.append(rowCell3);
+                     
+                     var rowCell4 = $j('<td></td>').addClass('num-col').text(passes);
+                     row.append(rowCell4);
+                     
+                     var rowCell5 = $j('<td></td>').addClass('text-col').text(failures);
+                     row.append(rowCell5);
+                     
+                     var rowCell6 = $j('<td></td>').addClass('num-col').text(consecutiveFailures);
+                     row.append(rowCell6);
+                     
+                     var rowCell7 = $j('<td></td>').addClass('text-col').text(failedStep);
+                     row.append(rowCell7);
+                     
+                     var rowCell8 = $j('<td></td>').addClass('text-col').text(errorMessage);
+                     row.append(rowCell8);
+                                         
+	            	 $j('#runDetailRawData-summary-table').append(row);
+                });
+             },this)
+            )	
+                        
+	//add event handler to rawdata link
+	$j("#runDetailRawData").on("click",function(){
+	  	$j("#runDetailRawData-summary-table").slideToggle("slow");
+	});
+	
+	//add run detail table
+}
+
+
 function generateChart(buildNumber) {
         generateLineChart_TestResultTrend();
         generatePieChart_TestResultByStatus(buildNumber);
@@ -97,7 +202,7 @@ function getLineChartConfig(chartCategories, highchartsData){
             }
         },*/
         series: [{
-            name: 'Failure %',
+            name: 'Passed %',
             data: highchartsData
         }]
     }
@@ -197,7 +302,7 @@ function getPieChartConfig(highchartsData, resultTitle){
             type: 'bar'
         },
         title: {
-            text: 'Failures by Area',
+            text: 'Failures By Area',
             x: -20 //center
         },
         xAxis: {

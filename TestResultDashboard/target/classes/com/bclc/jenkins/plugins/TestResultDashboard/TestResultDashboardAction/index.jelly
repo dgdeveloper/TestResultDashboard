@@ -1,18 +1,15 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
 <l:layout title="Test Result Graph">
-<st:include it="${it.project}" page="sidepanel.jelly" />
 <st:bind var="remoteAction" value="${it}"/> 
 <l:main-panel>
-<link href="${resURL}/plugin/TestResultDashboard/css/table-style.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/jquery/js/jquery-1.11.1.min.js"></script>
 
 <script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/js/handlebars-v2.0.0.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/js/highcharts.js"></script>
 
 <script src="http://code.highcharts.com/modules/exporting.js"></script>
-<script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/js/testresult.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/js/chart-generator.js"></script>
-<script type="text/javascript" src="${resURL}/plugin/TestResultDashboard/js/test-result-analyzer-template.js"></script>
+
 <script>
 
 var $j = jQuery.noConflict();
@@ -28,35 +25,35 @@ var $j = jQuery.noConflict();
 		</select>
        <button class = "charts" id="generatechart">Generate Build Report</button>
 	</div>
-	<br/>
-	
-	<div id="container" style="width:100%; height:400px;"></div>
-	
-   <div id="charts">
-   		<div id="linechart">
-
-   		</div>
-   		<br/>
-
-   		<div id="piechart">
-
-   		</div>
-		<br/>
-
-   		<div id="barchart">
-
-   		</div>
-
-   </div>
+    <div class="jumbotron"> 
+	    <div class="container-fluid-fluid">
+	       <div class="row">
+	       		<div id="linechart">
+   		   		</div>
+	       </div>
+	       <div class="row">
+	       		<div class="col-md-8" id="piechart">
+		   		</div>
+		   		<div class="col-md-10" id="barchart">
+		   		</div>
+		   		<div class="col-md-6" id="runSummaryRawDataTable">
+					
+		   		 </div>
+	       </div>
+	       <div class="row">
+	       		<div class="col-md-24" id="runDetailsRawDataTable">
+					
+		   		 </div>
+	        </div>
+	    </div>      
+      </div>
 	
 <script>
 	$j("#generatechart").click(function () {
 	        var buildNumber = $j('#noofbuilds').val();
 	   		generateChart(buildNumber);
-    }); 
-      
-
-    
+	   		generateRawDataTable(buildNumber);
+    });   
 </script>
 
 	

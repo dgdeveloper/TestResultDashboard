@@ -14,6 +14,10 @@ import net.sf.json.JSONObject;
 public class PackageInfo extends Info {	
 	protected Map<String, ClassInfo> classes = new TreeMap<String, ClassInfo>();
 	
+	public Map<String, ClassInfo> getClasses() {
+		return classes;
+	}
+
 	public void putPackageResult(PackageResult packageResult){
 		PackageResultData packageResultData = new PackageResultData(packageResult);
 //		evaluateStatusses(packageResult);

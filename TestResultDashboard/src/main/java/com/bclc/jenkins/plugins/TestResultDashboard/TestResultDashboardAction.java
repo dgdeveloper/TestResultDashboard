@@ -21,6 +21,7 @@ import hudson.model.Actionable;
 import hudson.model.Run;
 import hudson.tasks.junit.PackageResult;
 import hudson.tasks.junit.TestResult;
+import hudson.tasks.junit.CaseResult;
 import hudson.tasks.test.AbstractTestResultAction;
 import hudson.util.RunList;
 
@@ -180,6 +181,63 @@ public class TestResultDashboardAction extends Actionable implements Action{
     	
     	
     	return jsonArray;
+    }
+    
+    @JavaScriptMethod
+    public JSONArray getTestResultForAreaByBuildNumber(int buildNumber) {
+    	JSONArray jsonArray = new JSONArray();
+    	
+    	ResultInfo buildResultInfo = projectBuildResults.get(buildNumber);
+    	Map<String,PackageInfo> packageResultInfo = buildResultInfo.getPackageResults();
+    	
+    	for (Map.Entry<String, PackageInfo> entry : packageResultInfo.entrySet()) {   		
+    		ResultData packageResultData = entry.getValue().getResultData();  
+    		
+    		String packageName = packageResultData.getName();
+    		int totalTests = packageResultData.getTotalTests();
+    		int totalPassed = packageResultData.getTotalPassed();
+    		int totalFailed = packageResultData.getTotalFailed();
+    		
+    		JSONObject json = new JSONObject();
+    	 	json.put("PackageName",packageName);	
+    		json.put("TotalTests",totalTests);
+    		json.put("TotalPassed",totalPassed);
+    		json.put("TotalFailed",totalFailed);
+    		jsonArray.add(json);
+    	}
+    	
+    	return jsonArray;
+
+    }
+    
+    @SuppressWarnings("rawtypes")
+	@JavaScriptMethod
+    public JSONArray getTestResultFailuresDetailByBuildNumber(int buildNumber) {
+    	JSONArray jsonArray = new JSONArray();
+    	
+    	Run run = project.getBuildByNumber(buildNumber);
+    
+    	List<AbstractTestResultAction> testActions = run.getActions(hudson.tasks.test.AbstractTestResultAction.class);
+		for (hudson.tasks.test.AbstractTestResultAction testAction : testActions) {
+			TestResult testResult = (TestResult) testAction.getResult();
+			List<CaseResult> failedTests = testResult.getFailedTests();
+			
+			for (CaseResult failedTest : failedTests) {
+	    		JSONObject json = new JSONObject();
+	    	 	json.put("PackageName",failedTest.getPackageName());	
+	    		json.put("TestName",failedTest.getName());
+	    		json.put("TotalCount",failedTest.getTotalCount());
+	    		json.put("PassCount",failedTest.getPassCount());
+	    		json.put("FailCount",failedTest.getFailCount());
+	    		json.put("Age",Math.abs(failedTest.getAge()));
+	    		json.put("ErrorStackTrace",failedTest.getErrorStackTrace());
+	    		json.put("ErrorDetails",failedTest.getErrorDetails());
+	    		jsonArray.add(json);
+			}
+		}
+    	
+    	return jsonArray;
+
     }
 
 }
