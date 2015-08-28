@@ -6,11 +6,68 @@
     "na" :""
 };
 
+
+function generateChart(buildNumber) {
+        generateLineChart_TestResultTrend();
+        generatePieChart_TestResultByStatus(buildNumber);
+        generateBarChart_FailuresByAreas(buildNumber);
+
+}
+
 function generateRawDataTable(buildNumber) {
     generateRunRawDataTable(buildNumber);
-    generateRunDetailDataTable(buildNumber);
-    
-    
+    generateRunDetailDataTable(buildNumber);   
+    addEventHandlers();
+}
+
+function addEventHandlers()
+{
+	//add sortable handler
+	$j('th').click(function(){
+	    var table = $j(this).parents('table').eq(0)
+	    var rows = table.find('tr:gt(0)').toArray().sort(comparer($j(this).index()))
+	    this.asc = !this.asc
+	
+	    $j(".sortSymbol").remove()
+	    if (!this.asc){rows = rows.reverse()}
+	    for (var i = 0; i < rows.length; i++){table.append(rows[i])}
+	
+	   if (!this.asc){
+	          $j(this).append('<span class="sortSymbol">↑</span>')
+	   }
+	   else {
+	    	 $j(this).append('<span class="sortSymbol">↓</span>')
+	   }
+    })
+
+}
+function generateExecutiveSummary(buildNumber) {
+	var executiveSummaryDiv = $j('#executiveSummary')
+	    remoteAction.getBuildSummaryByBuildNumber(buildNumber,$j.proxy(
+             function(t){
+                chartData = t.responseObject();
+                $j.each(chartData, function(i, e) {
+                     var projectName = e.ProjectName;
+                     var buildNumber = e.BuildNumber;
+                     var dateOfBuild = e.DateOfBuild;
+                     var buildDuration = e.BuildDuration;
+                     var buildDescription = e.BuildDescription;
+                     
+                     var hearder1= $j('<h1 align="left"></h1>').text("QA Automation Report")
+                     executiveSummaryDiv.append(hearder1);
+                     
+                     var hearder2= $j('<h2 align="right"></h2>').text("Project Name: " +projectName)
+                     executiveSummaryDiv.append(hearder2);
+
+                     var hearder3= $j('<h3 align="right"></h3>').text("Build Number: " + buildNumber + " | " + "Date Of Build: " + dateOfBuild + " | " + " Build Duration: " + buildDuration);
+                     executiveSummaryDiv.append(hearder3);
+   
+                     var hearder4= $j('<h3 align="right"></h3>').text("Build Description: " + buildDescription);
+                     executiveSummaryDiv.append(hearder4);
+                });
+             },this)
+            )	
+	
 }
 
 function generateRunRawDataTable(buildNumber) {
@@ -49,9 +106,15 @@ function generateRunRawDataTable(buildNumber) {
 	$j("#runRawData").on("click",function(){
 	  	$j("#runRawData-summary-table").slideToggle("slow");
 	});
-	
-	//add run detail table
 }
+
+function comparer(index) {
+    return function(a, b) {
+        var valA = getCellValue(a, index), valB = getCellValue(b, index)
+        return $j.isNumeric(valA) && $j.isNumeric(valB) ? valA - valB : valA.localeCompare(valB)
+    }
+}
+function getCellValue(row, index){ return $j(row).children('td').eq(index).html() }
 
 
 function generateRunDetailDataTable(buildNumber) {
@@ -70,8 +133,13 @@ function generateRunDetailDataTable(buildNumber) {
                      var consecutiveFailures = e.Age;
                      var failedStep = e.ErrorStackTrace; 
                      var errorMessage = e.ErrorDetails;
+                     var isRegression = e.isRegression;
                      
                      var row= $j('<tr></tr>')
+                     
+                     if (isRegression == "True") {
+                         row.css('background-color', statusColors["failed"]);
+                     }
                      
                      var rowCell1 = $j('<td></td>').addClass('text-col').text(areaName);
                      row.append(rowCell1);
@@ -106,17 +174,9 @@ function generateRunDetailDataTable(buildNumber) {
 	$j("#runDetailRawData").on("click",function(){
 	  	$j("#runDetailRawData-summary-table").slideToggle("slow");
 	});
-	
-	//add run detail table
 }
 
 
-function generateChart(buildNumber) {
-        generateLineChart_TestResultTrend();
-        generatePieChart_TestResultByStatus(buildNumber);
-        generateBarChart_FailuresByAreas(buildNumber);
-
-}
 
 function generateLineChart_TestResultTrend() {
 
@@ -124,16 +184,17 @@ function generateLineChart_TestResultTrend() {
         var highchartsData = []; // this is data for highcharts  
         var chartCategories = [];
 	   								
-	    remoteAction.getTestResultTrend($j.proxy(
+	    remoteAction.getTestResultPassTrend($j.proxy(
              function(t){
                 chartData = t.responseObject();
-                $j.each(chartData, function(i, e) {
-                     var buildNumber = e.BuildNumber
-	            	 chartCategories.push(buildNumber);
-	            	 var PassedPercentage = e.Value
-	            	 highchartsData.push(PassedPercentage);
-                
-                });
+                if (chartData.length > 0 ) {
+                     $j.each(chartData, function(i, e) {
+	                     var buildNumber = e.BuildNumber
+		            	 chartCategories.push(buildNumber);
+		            	 var PassedPercentage = e.Value
+		            	 highchartsData.push(PassedPercentage);
+                    });
+                }
 
                 $j(function () {$j("#linechart").highcharts(getLineChartConfig(chartCategories, highchartsData))});
 
@@ -172,6 +233,9 @@ function getLineChartConfig(chartCategories, highchartsData){
             headerFormat: '<b>Build no: {point.x}</b><br>',
             shared: true,
             crosshairs: true
+        },
+        lang: {
+            noData: "No Test Result"
         },
         legend: {
             layout: 'vertical',
@@ -214,16 +278,18 @@ function generatePieChart_TestResultByStatus(buildNumber) {
             var chartData
             var highchartsData = []; // this is data for highcharts
     
-        	remoteAction.getTestResultStatusByBuildNumber(buildNumber,$j.proxy(
+        	remoteAction.getTestResultByStatusByBuildNumber(buildNumber,$j.proxy(
              function(t){
                 chartData = t.responseObject();
-                $j.each(chartData, function(i, e) {
-                	highchartsData.push({
+                if (chartData.length > 0 ) {
+                    $j.each(chartData, function(i, e) {
+                	    highchartsData.push({
 						    name:   e.Status,
 						    y: e.Value,
 						    count: e.Count
 						});
-						                });
+			    	});
+                }
 
                 $j(function () {$j("#piechart").highcharts(getPieChartConfig(highchartsData,"Test Result By Status %"))});
 
@@ -263,6 +329,9 @@ function getPieChartConfig(highchartsData, resultTitle){
                 }
             }
         },
+        lang: {
+            noData: "No Test Result"
+        },
         colors : [statusColors["passed"], statusColors["failed"], statusColors["skipped"],statusColors["total"]],
         series: [{
             data: highchartsData
@@ -280,13 +349,14 @@ function getPieChartConfig(highchartsData, resultTitle){
 	    remoteAction.getFailurePercentageForAreaByBuildNumber(buildNumber,$j.proxy(
              function(t){
                 chartData = t.responseObject();
-                $j.each(chartData, function(i, e) {
-                     var areaName = e.PackageName
-	            	 chartCategories.push(areaName);
-	            	 var failurePercentage = e.Value
-	            	 highchartsData.push(failurePercentage);
-                
-                });
+                if (chartData.length > 0 ) {
+                      $j.each(chartData, function(i, e) {
+		                  var areaName = e.PackageName
+			              chartCategories.push(areaName);
+			              var failurePercentage = e.Value
+			              highchartsData.push(failurePercentage);
+                     });
+                }
 
                 $j(function () {$j("#barchart").highcharts(getBarChartConfig(chartCategories, highchartsData))});
 
@@ -336,6 +406,9 @@ function getPieChartConfig(highchartsData, resultTitle){
                     enabled: true
                 }
             }
+        },
+        lang: {
+            noData: "No Test Result"
         },
         legend: {
             reversed: true
