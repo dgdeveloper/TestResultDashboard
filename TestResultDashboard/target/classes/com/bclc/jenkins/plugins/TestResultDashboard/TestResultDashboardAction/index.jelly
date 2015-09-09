@@ -12,7 +12,7 @@ var $j = jQuery.noConflict();
 </script>
 
 <j:set var="temp" value="${it.jsonLoadData}"/>
-	<div>
+	<!--<div>
 		Select build# 
 		<select id="noofbuilds">
 		<j:forEach var="buildNumber" items="${it.getBuilds()}">
@@ -20,7 +20,7 @@ var $j = jQuery.noConflict();
 		  </j:forEach>
 		</select>
        <button class = "charts" id="generatechart">Generate Build Report</button>
-	</div>
+	</div>-->
     <div class="jumbotron"> 
 	    <div class="container-fluid-fluid">
 	    	<div class="row">
@@ -49,17 +49,23 @@ var $j = jQuery.noConflict();
       </div>
 	
 <script>
-	$j("#generatechart").click(function () {
+  
+  	/*$j("#generatechart").click(function () {
 	        var buildNumber = $j('#noofbuilds').val();
 	        resetChartPage();
 	        generateExecutiveSummary(buildNumber);
 	   		generateChart(buildNumber);
 	   		generateRawDataTable(buildNumber);
-    });   
+    }); */
+    
+    $j( document ).ready(function() {
+        generateLineChart_TestResultTrend();
+    });
+    
     
     function resetChartPage(){
     	$j("#executiveSummary").html("");
-	    $j("#linechart").html("");
+	   // $j("#linechart").html("");
 	    $j("#piechart").html("");
 	    $j("#barchart").html("");
 	    $j("#runSummaryRawDataTable").html("");

@@ -8,7 +8,6 @@
 
 
 function generateChart(buildNumber) {
-        generateLineChart_TestResultTrend();
         generatePieChart_TestResultByStatus(buildNumber);
         generateBarChart_FailuresByAreas(buildNumber);
 
@@ -245,26 +244,22 @@ function getLineChartConfig(chartCategories, highchartsData){
         },
         colors : [statusColors["passed"], statusColors["failed"], statusColors["skipped"],statusColors["total"]]
         ,
-        /*plotOptions: {
+        plotOptions: {
             series: {
                 cursor: 'pointer',
                 point: {
                     events: {
                         click: function (e) {
-                            var x1 = this.x;
-                            var category = this.category;
-                            var passed = this.series.chart.series[0].data[x1].y;
-                            var failed = this.series.chart.series[1].data[x1].y;
-                            var skipped = this.series.chart.series[2].data[x1].y;
-                            var total = this.series.chart.series[3].data[x1].y;
-                            var resultTitle = 'Build details for build: '+category;
-                            generatePieChart(calculatePercentage(passed,failed,skipped,total),resultTitle);
-
+                            var buildNumber = this.category;
+                            resetChartPage();
+                            generateExecutiveSummary(buildNumber);
+	   		                generateChart(buildNumber);
+	   		                generateRawDataTable(buildNumber);
                         }
                     }
                 }
             }
-        },*/
+        },
         series: [{
             name: 'Passed %',
             data: highchartsData
@@ -352,9 +347,14 @@ function getPieChartConfig(highchartsData, resultTitle){
                 if (chartData.length > 0 ) {
                       $j.each(chartData, function(i, e) {
 		                  var areaName = e.PackageName
-			              chartCategories.push(areaName);
-			              var failurePercentage = e.Value
-			              highchartsData.push(failurePercentage);
+			              chartCategories.push(areaName)
+			              
+			              highchartsData.push({
+						    y: e.Value,
+						    totalTests : e.TotalTests,
+						    totalFailed: e.TotalFailed
+						  });
+						
                      });
                 }
 
@@ -396,9 +396,12 @@ function getPieChartConfig(highchartsData, resultTitle){
             enabled: false
         },
         tooltip: {
-            headerFormat: '<b>Area:</b> {point.x}',
-            shared: true,
-            crosshairs: true
+            formatter: function () {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y + '<br/>' +
+                    'Total: ' + this.point.totalTests + '<br/>' +
+                    'Failed: ' + this.point.totalFailed;
+            }
         },
         plotOptions: {
             bar: {

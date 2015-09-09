@@ -159,6 +159,8 @@ public class TestResultDashboardAction extends Actionable implements Action{
             		JSONObject json = new JSONObject();
             	 	json.put("PackageName",packageName);	
             		json.put("Value",failurePercentage);
+            		json.put("TotalTests",totalTests);
+            		json.put("TotalFailed",totalFailed);
             		jsonArray.add(json);
     			}   	
     		}
