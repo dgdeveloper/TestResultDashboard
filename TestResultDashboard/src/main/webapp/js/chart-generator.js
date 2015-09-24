@@ -58,10 +58,10 @@ function generateExecutiveSummary(buildNumber) {
                      var hearder2= $j('<h2 align="right"></h2>').text("Project Name: " +projectName)
                      executiveSummaryDiv.append(hearder2);
 
-                     var hearder3= $j('<h3 align="right"></h3>').text("Build Number: " + buildNumber + " | " + "Date Of Build: " + dateOfBuild + " | " + " Build Duration: " + buildDuration);
+                     var hearder3= $j('<h3 align="right"></h3>').text("Test Run#: " + buildNumber + " | " + "Date Of Run: " + dateOfBuild + " | " + " Duration: " + buildDuration);
                      executiveSummaryDiv.append(hearder3);
    
-                     var hearder4= $j('<h3 align="right"></h3>').text("Build Description: " + buildDescription);
+                     var hearder4= $j('<h3 align="right"></h3>').text("Test Run Description: " + buildDescription);
                      executiveSummaryDiv.append(hearder4);
                 });
              },this)
@@ -211,7 +211,7 @@ function getLineChartConfig(chartCategories, highchartsData){
         },
         xAxis: {
             title: {
-                text: 'Build number'
+                text: 'Test Run Number'
             },
             categories: chartCategories
         },
@@ -229,7 +229,7 @@ function getLineChartConfig(chartCategories, highchartsData){
             enabled: false
         },
         tooltip: {
-            headerFormat: '<b>Build no: {point.x}</b><br>',
+            headerFormat: '<b>Run no: {point.x}</b><br>',
             shared: true,
             crosshairs: true
         },

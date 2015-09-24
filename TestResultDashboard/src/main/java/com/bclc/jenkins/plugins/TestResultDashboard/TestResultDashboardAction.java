@@ -75,9 +75,16 @@ public class TestResultDashboardAction extends Actionable implements Action{
 		}
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean isUpdated(){
-		int latestBuildNumber = project.getLastBuild().getNumber();
-		return !(buildNumbers.contains(latestBuildNumber));
+		Iterator<Run> builds = project.getBuilds().iterator();
+		int theNumberOfBuilds = 0;
+		
+		while (builds.hasNext()) {
+			Run run = builds.next();
+			theNumberOfBuilds+=1;
+		}
+		return !(buildNumbers.size() == theNumberOfBuilds);
 	}
 	
 	public LinkedList<Integer> getBuilds(){
