@@ -114,6 +114,7 @@ public class TestResultDashboardAction extends Actionable implements Action{
     public JSONArray getTestResultByStatusByBuildNumber(int buildNumber) {
 		JSONArray jsonArray = new JSONArray();
     	int totalTests = 0, totalFailed = 0, totalPassed = 0;
+    	double passedPercent = 0, failedPercent = 0;
 
     	Run run = project.getBuildByNumber(buildNumber);
       	List<AbstractTestResultAction> testActions = run.getActions(hudson.tasks.test.AbstractTestResultAction.class);
@@ -121,20 +122,25 @@ public class TestResultDashboardAction extends Actionable implements Action{
       	if (!testActions.isEmpty()) { //has test result, calculate %
     		for (hudson.tasks.test.AbstractTestResultAction testAction : testActions) {
     			TestResult testResult = (TestResult) testAction.getResult();
-    			totalTests += testResult.getTotalCount();
-    			totalPassed += testResult.getPassCount();
-    			totalFailed += testResult.getFailCount();
+    			if (!testResult.isEmpty()) {
+        			totalTests += testResult.getTotalCount();
+        			totalPassed += testResult.getPassCount();
+        			totalFailed += testResult.getFailCount();
+        			passedPercent = (totalPassed * 100)/totalTests;
+        			failedPercent = (totalFailed * 100)/totalTests;
+    			}
+
     		}
 			
 		       JSONObject json1 = new JSONObject();
 		 	   json1.put("Status","Passed");	
-			   json1.put("Value",(totalPassed * 100)/totalTests);
+			   json1.put("Value",passedPercent);
 			   json1.put("Count",totalPassed);
 			   jsonArray.add(json1);
 			   
 			   JSONObject json2 = new JSONObject();
 		 	   json2.put("Status","Failed");	
-			   json2.put("Value",(totalFailed * 100)/totalTests);
+			   json2.put("Value",failedPercent);
 			   json2.put("Count",totalFailed);
 			   jsonArray.add(json2);
 
@@ -193,10 +199,14 @@ public class TestResultDashboardAction extends Actionable implements Action{
           	if (!testActions.isEmpty()) { //has test result, 
           		for (hudson.tasks.test.AbstractTestResultAction testAction : testActions) {
           			TestResult testResult = (TestResult) testAction.getResult();
-          			totalTests += testResult.getTotalCount();
-          			totalPassed  += testResult.getPassCount();
+          			if(!testResult.isEmpty())
+          			{   
+          			   totalTests += testResult.getTotalCount();
+          			   totalPassed  += testResult.getPassCount();
+                 	   passedPercent = (totalPassed * 100)/totalTests;
+          			}
           		}
-          		passedPercent = (totalPassed * 100)/totalTests;
+
           	}
           	
      		JSONObject json = new JSONObject();
